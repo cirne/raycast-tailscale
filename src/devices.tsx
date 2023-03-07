@@ -2,6 +2,7 @@ import { ActionPanel, Detail, List, Action, useNavigation, Color, Icon, showToas
 import { FormValueModel } from "@raycast/api/types/api/internal";
 import React, { useEffect, useState } from "react";
 import { runAppleScript } from "run-applescript";
+import { screenShareTailscaleDevice, sshToTailscaleDevice } from "./device-commands";
 
 interface Device {
   self: boolean;
@@ -41,7 +42,7 @@ function loadDevices(self: LooseObject, data: LooseObject) {
   for (const [key, value] of Object.entries(data)) {
     const device = {
       self: false,
-      key: ++theKey, 
+      key: ++theKey,
       name: value.DNSName.split('.')[0],
       dns: value.DNSName,
       ipv4: value.TailscaleIPs[0],
@@ -86,13 +87,15 @@ function DeviceList() {
           key={device.key}
           icon={
             (device.online)
-            ? { source: {
+              ? {
+                source: {
                   light: "connected_light.png",
                   dark: "connected_dark.png",
                 },
                 mask: Image.Mask.Circle
               }
-            : { source: {
+              : {
+                source: {
                   light: "lastseen_light.png",
                   dark: "lastseen_dark.png",
                 },
@@ -101,25 +104,42 @@ function DeviceList() {
           }
           accessories={
             (device.self)
-            ? [ { text: "This device", icon: Icon.Person},
-                { text: device.online ? `        Connected` : "Last seen " + device.lastseen.toLocaleString('en-US', {
+              ? [{ text: "This device", icon: Icon.Person },
+              {
+                text: device.online ? `        Connected` : "Last seen " + device.lastseen.toLocaleString('en-US', {
                   month: 'short',
                   day: 'numeric',
                   hour: 'numeric',
                   minute: 'numeric'
-                }) },
+                })
+              },
               ]
-            : [ {
-               text: device.online ? `        Connected` : "Last seen " + device.lastseen.toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric'
-              }) },
-               ]
-        }
+              : [{
+                text: device.online ? `        Connected` : "Last seen " + device.lastseen.toLocaleString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric'
+                })
+              },
+              ]
+          }
           actions={
             <ActionPanel>
+              <Action
+                title="SSH to Device"
+                icon={Icon.Terminal}
+                onAction={() => {
+                  sshToTailscaleDevice(device.dns);
+                }}
+              />
+              <Action
+                title="Screen Share to Device"
+                icon={Icon.Window}
+                onAction={() => {
+                  screenShareTailscaleDevice(device.dns);
+                }}
+              />
               <Action.CopyToClipboard
                 content={device.ipv4}
                 title="Copy IPv4 Address to Clipboard"
@@ -134,8 +154,8 @@ function DeviceList() {
               />
             </ActionPanel>
           }
-          />
-      ))}  
+        />
+      ))}
     </List>
   );
 }
