@@ -1,5 +1,4 @@
-import { ActionPanel, Detail, List, Action, useNavigation, Color, Icon, showToast, Toast, Image } from "@raycast/api";
-import { FormValueModel } from "@raycast/api/types/api/internal";
+import { ActionPanel, List, Action, Icon, showToast, Toast, Image } from "@raycast/api";
 import React, { useEffect, useState } from "react";
 import { runAppleScript } from "run-applescript";
 import { screenShareTailscaleDevice, sshToTailscaleDevice } from "./device-commands";
